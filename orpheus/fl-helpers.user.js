@@ -6,6 +6,7 @@
 // @author      KlutzyBubbles
 // @match       https://orpheus.network/collages.php?id=*
 // @match       https://orpheus.network/torrents.php*
+// @match       https://orpheus.network/bookmarks.php?type=torrents
 // @match       https://orpheus.network/artists.php?id=*
 // ==/UserScript==
 

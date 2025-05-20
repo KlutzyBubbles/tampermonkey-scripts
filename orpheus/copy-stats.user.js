@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Copy Stats
-// @namespace    klutzybubbles
-// @version      0.0.1
+// @namespace    http://tampermonkey.net/
+// @version      0.0.2
 // @description  Copy stats
 // @author       KlutzyBubbles
 // @match        https://orpheus.network/user.php?id=*
@@ -45,6 +45,8 @@ function htmlToElement(html) {
     // This is used for extra info but also doubles as a check for whether you are looking at your own profile.
     const userClass = $('div .box_userinfo_nextclass').find('ul.stats').eq(0);
     if (userClass.length === 0) return;
+    const userStats = $('div .box_userinfo_stats').find('ul.stats').eq(0);
+    if (userStats.length === 0) return;
 
     const searchableStr = document.URL + '&';
     const userId = searchableStr.match (/[\?\&]id=([^\&\#]+)[\&\#]/i)    [1];
@@ -55,10 +57,17 @@ function htmlToElement(html) {
     selector.on('click', async function() {
         selector.addClass('disable-click tooltip');
         let perfecter = '?';
+        let pph = '?';
         userClass.find('li').each((index, item) => {
             const raw = $(item).text();
             if (raw.toLowerCase().includes('perfecter')) {
-                perfecter = raw.split(' / ')[0].slice(-2);
+                perfecter = raw.split(' / ')[0].split(': ')[1];
+            }
+        });
+        userStats.find('li').each((index, item) => {
+            const raw = $(item).text();
+            if (raw.toLowerCase().includes('points per hour')) {
+                pph = raw.split(': ')[1];
             }
         });
         let ret = await requests.get(
@@ -114,7 +123,8 @@ function htmlToElement(html) {
             r.community.seeding,
             r.community.leeching,
             r.community.snatched,
-            r.community.invited
+            r.community.invited,
+            pph,
         ];
         console.log(r);
         navigator.clipboard.writeText(items.join('\t'));
