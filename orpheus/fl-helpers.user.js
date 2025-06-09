@@ -2,7 +2,7 @@
 // @name        Orpheus: Freeleech helper
 // @namespace    klutzybubbles
 // @description Removes FL token confirm, lists how many tokens it will use
-// @version     0.0.1
+// @version     0.0.2
 // @author      KlutzyBubbles
 // @match       https://orpheus.network/collages.php?id=*
 // @match       https://orpheus.network/torrents.php*
@@ -20,16 +20,26 @@ const values = {
 
 const tokenVal = 512 * values['MiB'];
 
+const DEBUG = true;
+
+function debugMessage(...args) {
+    if (DEBUG) {
+        console.log(...args);
+    }
+}
+
 (function() {
     'use strict';
     
     $('.torrent_row, .group_torrent:not(.edition)').each(function (index, item) {
         const sizeString = $(item).find('.td_size').text();
-        const size = parseFloat(sizeString.split(' ')[0]);
+        const size = parseFloat(sizeString.split(' ')[0].replace(',', ''));
         const unit = sizeString.split(' ')[1];
         const bytes = size * values[unit]
         const unsure = bytes % tokenVal === 0;
         const tokens = bytes <= tokenVal ? 1 : ((bytes - (bytes % tokenVal)) / tokenVal) + 1;
+
+        debugMessage(size, unit, bytes, unsure, tokens);
         const buttons = $(item).find('.torrent_links_block').eq(0);
         const tokenString = unsure ? `${tokens}-${tokens + 1}` : `${tokens}`;
         if (buttons.length === 0) return;
